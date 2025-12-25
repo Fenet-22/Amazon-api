@@ -1,14 +1,17 @@
-// index.js
+// functions/index.js
+const functions = require("firebase-functions");
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const Stripe = require("stripe");
 
-// Load environment variables from .env
+// Load environment variables
 dotenv.config();
 
-// Initialize Stripe with your secret key
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe
+const stripe = Stripe(
+  process.env.STRIPE_SECRET_KEY || functions.config().stripe.secret
+);
 
 const app = express();
 
@@ -44,8 +47,5 @@ app.post("/payment/create", async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(5000, (err) => {
-  if (err) throw err;
-  console.log("Amazon server running on port 5000: http://localhost:5000");
-});
+// Firebase export (REQUIRED)
+exports.api = functions.https.onRequest(app);
