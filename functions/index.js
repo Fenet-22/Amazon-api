@@ -9,9 +9,8 @@ const Stripe = require("stripe");
 dotenv.config();
 
 // Initialize Stripe
-const stripe = Stripe(
-  process.env.STRIPE_SECRET_KEY || functions.config().stripe.secret
-);
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 const app = express();
 
