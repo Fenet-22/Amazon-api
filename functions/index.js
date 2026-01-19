@@ -1,35 +1,35 @@
 // functions/index.js
-const functions = require("firebase-functions");
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const Stripe = require("stripe");
 
 // Load environment variables
-// Ensure your .env file is INSIDE the functions folder
 dotenv.config();
 
 // Initialize Stripe
+// Ensure STRIPE_SECRET_KEY is added in Render Dashboard -> Settings -> Environment
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 
 // Middleware
-// origin: true allows any origin (perfect for development)
 app.use(cors({ origin: true }));
 app.use(express.json());
 
 // Simple test route
 app.get("/", (req, res) => {
   res.status(200).json({ 
-    message: "Success! Firebase Functions are working.",
+    message: "Success! Your Amazon API is running on Render.",
     stripe_configured: !!process.env.STRIPE_SECRET_KEY 
   });
 });
 
 // Payment route
 app.post("/payment/create", async (req, res) => {
-  const total = parseInt(req.query.total); // Ensure total is an integer
+  // Use req.query.total or req.body.total depending on your frontend setup
+  // Usually, Stripe totals are passed in the URL query for this project
+  const total = parseInt(req.query.total); 
 
   console.log("Payment Request Received for amount:", total);
 
@@ -48,7 +48,6 @@ app.post("/payment/create", async (req, res) => {
 
     console.log("PaymentIntent Created Successfully:", paymentIntent.id);
 
-    // Send back the clientSecret to the frontend
     res.status(201).json({ 
       clientSecret: paymentIntent.client_secret 
     });
@@ -61,5 +60,9 @@ app.post("/payment/create", async (req, res) => {
   }
 });
 
-// Firebase export
-exports.api = functions.https.onRequest(app);
+// --- RENDER SPECIFIC START COMMAND ---
+// This replaces the "exports.api" line used for Firebase
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
